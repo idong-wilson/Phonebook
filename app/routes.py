@@ -1,6 +1,7 @@
-from phonebook_flask import app
+from app import app, db
 from flask import render_template, url_for, redirect, flash
-from phonebook_flask.forms import RegistrationForm
+from app.forms import RegistrationForm
+from app.models import User
 
 
 @app.route('/')
@@ -13,7 +14,10 @@ def homepage():
 def register():
     form=RegistrationForm()
     if form.validate_on_submit():
-        flash(f"{form.first_name.data} {form.last_name.data}'s info created successfully!")
+        user = User(first_name=form.first_name.data, last_name=form.last_name.data, phone_number=form.phone_number.data, address=form.address.data)
+        db.session.add(user)
+        db.session.commit()
+        flash(f"{form.first_name.data} {form.last_name.data}'s info created successfully!", category='success')
         return redirect(url_for('homepage'))
     return render_template('register.html', title='Register', form=form)
 
